@@ -1,0 +1,158 @@
+#!/bin/bash
+# The following goes first, so we can refer back the directory containing these scripts.
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+QUESTION_DIR="$HOME/csc209_23s_a1q1"
+DB_DIR="$QUESTION_DIR/database"
+PHOTOS_DIR="$DB_DIR/photos"
+
+if ! mkdir /tmp/addPhotos_1004707490.lock 2>/dev/null; then
+    echo "addPhotos is already running." >&2
+    exit 1
+fi
+
+verbose=0
+
+if [[ $# -ge 1 && $1 == "-v" ]]
+then
+	verbose=1
+	shift
+fi
+
+if [[ verbose -eq 1 && $# -eq 0 ]]
+then
+	>&2 echo "See addPhotos --help for an example (or see the usage.txt file here)"
+	rmdir /tmp/addPhotos_1004707490.lock
+	exit 1
+fi
+
+if [ $# -eq 0 ]
+then
+	>&2 echo "See addPhotos --help for an example (or see the usage.txt file here)"
+	rmdir /tmp/addPhotos_1004707490.lock
+	exit 1
+fi
+
+while (( $# > 0 ))
+do
+	if [[ $# -ge 1 && $verbose == 1 ]]
+	then
+
+		hashtable=$(mktemp -d)
+
+		if [ "$(ls -l $PHOTOS_DIR | cut -d ' ' -f2)" != 0 ]
+		then
+			for fil in "$PHOTOS_DIR"/*
+			do
+				hash=$(md5sum "$fil" | cut -d' ' -f1)
+				echo $fil > "$hashtable/$hash"
+			done
+		fi
+
+		for f in $1/*
+		do
+			check_hash=$(md5sum "$f" | cut -d' ' -f1)
+			duplicate=0
+
+			if [[ -f "$hashtable/$check_hash" || -d "$hashtable/$check_hash" ]]
+			then 
+				duplicate=1
+			fi
+
+			: '
+			for fi in "$PHOTOS_DIR"/*
+			do
+				temp_hash=$(md5sum "$fi" | cut -d' ' -f1)
+				if [ $check_hash == $temp_hash ]
+				then
+					duplicate=1
+					break
+				fi
+			done'
+
+			if [ $duplicate == 0 ]
+			then
+				echo $f > "$hashtable/$check_hash"
+				if [[ -f "$f" && -f "$PHOTOS_DIR/$(basename ${f})" ]] #condition when destination folder has file with same name
+				then
+					file=$(basename ${f})
+					no=$(ls -1 $PHOTOS_DIR | grep -c "$file")
+					cp "$f" "${f%}_$no"
+					mv "${f%}_$no" "$PHOTOS_DIR"
+					echo "copied ${f%}_$no"
+				else
+					cp "$f" "$PHOTOS_DIR"
+					echo "copied $f"
+				fi
+			else
+				echo "duplicateImage $f"
+			fi
+		done
+	
+	elif [[ $# -ge 1  && -d "$1" ]]
+	then
+
+		hashtable=$(mktemp -d)
+
+		if [ "$(ls -l $PHOTOS_DIR | cut -d ' ' -f2)" != 0 ]
+		then
+			for fil in "$PHOTOS_DIR"/*
+			do
+				hash=$(md5sum "$fil" | cut -d' ' -f1)
+				echo $fil > "$hashtable/$hash"
+			done
+		fi
+			
+
+		for f in $1/*
+		do
+			check_hash=$(md5sum "$f" | cut -d' ' -f1)
+			duplicate=0
+			
+			if [[ -f "$hashtable/$check_hash" || -d "$hashtable/$check_hash" ]]
+			then 
+				duplicate=1
+			fi
+			
+			: '
+			for fi in "$PHOTOS_DIR"/*
+			do
+				temp_hash=$(md5sum "$fi" | cut -d' ' -f1)
+				if [ $check_hash == $temp_hash ]
+				then
+					duplicate=1
+					break
+				fi
+			done'
+
+			if [ $duplicate == 0 ]
+			then
+				echo $f > "$hashtable/$check_hash"
+				if [[ -f "$f" && -f "$PHOTOS_DIR/$(basename ${f})" ]] #condition when destination folder has file with same name
+				then
+					file=$(basename ${f})
+					no=$(ls -1 $PHOTOS_DIR | grep -c "$file")
+					cp "$f" "${f%}_$no"
+					mv "${f%}_$no" "$PHOTOS_DIR"
+					echo "copied ${f%}_$no"
+				else
+					cp "$f" "$PHOTOS_DIR"
+					echo "copied $f"
+				fi
+			fi
+		done
+	
+	elif [[ $# -ge 1 && $1 == "--help" ]]
+	then
+		cat usage_addPhotos.txt
+		rmdir /tmp/addPhotos_1004707490.lock
+		exit 0
+	elif [[  $# -ge 1  && ! -d "$1" ]]
+	then
+		echo "directory $1 does not exist" >&2
+	fi 
+	shift
+done
+
+rmdir /tmp/addPhotos_1004707490.lock
+exit 0

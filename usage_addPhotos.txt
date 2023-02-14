@@ -1,0 +1,16 @@
+Usage:  addPhotos [-v] [--help] dir1 [dir2] ...
+
+Options:
+  -v      Prints verbose output, indicating whether a file is copied or a duplicate.
+  --help  Show this help message and exit.
+
+Description:
+  The addPhotos command copies files from the given directories, making sure there are no duplicate files or duplicate file names.
+
+Examples:
+  Copy files from directory "photos_dir_1" and "photos_dir_2" with verbose output:
+    addPhotos -v photos_dir_1 photos_dir_2
+
+  Show the usage message:
+    addPhotos --help
+
