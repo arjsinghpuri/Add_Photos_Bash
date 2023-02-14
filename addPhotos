@@ -2,7 +2,7 @@
 # The following goes first, so we can refer back the directory containing these scripts.
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-QUESTION_DIR="$HOME/csc209_23s_a1q1"
+QUESTION_DIR="$HOME/folder"
 DB_DIR="$QUESTION_DIR/database"
 PHOTOS_DIR="$DB_DIR/photos"
 
