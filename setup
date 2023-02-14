@@ -2,10 +2,10 @@
 # Must be first
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-QUESTION_DIR="$HOME/csc209_23s_a1q1"
+QUESTION_DIR="$HOME/folder"
 DB_DIR="$QUESTION_DIR/database"
 PHOTOS_DIR="$DB_DIR/photos"
-SAMPLES_DIR="$HOME/csc209_23s_a1q1_samples"
+SAMPLES_DIR="$HOME/folder_samples"
 
 rm -fr "$QUESTION_DIR"
 
